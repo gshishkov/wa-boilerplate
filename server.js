@@ -21,13 +21,13 @@ var storage = multer.diskStorage({
     }
 });
 var upload = multer({
-    storage: storage,
-    limits: { fileSize: 10000000 }
-}).single('myfile');
+    storage: storage
+}).single('file');
+
 
 app.set('view engine', 'ejs');
 app.set('views', __dirname + '/views');
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.urlencoded({ limit: "50mb", extended: true, parameterLimit:50000 }));
 app.use(bodyParser.json());
 app.use(session({ secret: config.secret, resave: false, saveUninitialized: true }));
 
@@ -41,6 +41,7 @@ app.use('/app', require('./controllers/app.controller'));
 app.use('/api/users', require('./controllers/api/users.controller'));
 
 app.post('/upload', function(req, res) {
+    console.log('dasdasd');
     upload(req, res, function(err) {
         if (err) {
             if (err.code === 'LIMIT_FILE_SIZE') {

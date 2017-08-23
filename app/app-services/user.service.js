@@ -58,8 +58,11 @@
             return $q.reject(res.data);
         }
 
-        function UploadPhoto(_id,photo) {
-            return $http.post('/api/user/avatar/'+_id, photo).then(handleSuccess, handleError);
+        function UploadPhoto(formData) {
+            return $http.post('/upload/', formData,{
+                transformRequest: angular.identity,
+                headers: {'Content-Type': undefined}
+            }).then(handleSuccess, handleError);
         }
     }
 

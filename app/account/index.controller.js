@@ -5,13 +5,14 @@
         .module('app')
         .controller('Account.IndexController', Controller);
 
-    function Controller($window, UserService, FlashService) {
+    function Controller($scope, $window, UserService, FlashService) {
         var vm = this;
-
+        vm.avatar = null;
         vm.user = null;
         vm.saveUser = saveUser;
         vm.deleteUser = deleteUser;
         vm.photoChanged = photoChanged;
+        vm.uploadFile = uploadFile;
 
         initController();
 
@@ -61,6 +62,13 @@
                 $scope.thumbnail = {};
                 $scope.message = false;
             }
+        }
+
+        function uploadFile(){
+            console.log($scope.avatar);
+            var fd = new FormData();
+            fd.append('file', $scope.avatar);
+            UserService.UploadPhoto(fd);
         }
 
 

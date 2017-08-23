@@ -25,8 +25,9 @@
 
         <label class="btn btn-success">
                     Browse
-                    <input type="file"  name="myfile"  ng-click="vm.photoChanged(this.files)">
+                    <input type="file"  name="avatar"  file-model="avatar">
                 </label>
                 <img class="mythumbnail" ng-src="{{ thumbnail.dataUrl || 'http://via.placeholder.com/200x200' }}">
+                <button class="btn btn-primary" ng-click="vm.uploadFile()">uploadFile</button>
     </form>
 </div>
