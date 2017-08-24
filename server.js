@@ -30,6 +30,7 @@ app.set('views', __dirname + '/views');
 app.use(bodyParser.urlencoded({ limit: "50mb", extended: true, parameterLimit:50000 }));
 app.use(bodyParser.json());
 app.use(session({ secret: config.secret, resave: false, saveUninitialized: true }));
+app.use("/uploads", express.static(__dirname + '/uploads'));
 
 // use JWT auth to secure the api
 app.use('/api', expressJwt({ secret: config.secret }).unless({ path: ['/api/users/authenticate', '/api/users/register'] }));

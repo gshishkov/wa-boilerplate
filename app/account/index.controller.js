@@ -5,10 +5,12 @@
         .module('app')
         .controller('Account.IndexController', Controller);
 
-    function Controller($scope, $window, UserService, FlashService) {
+    function Controller($scope, $window,$timeout, UserService, FlashService) {
         var vm = this;
         vm.avatar = null;
         vm.user = null;
+        vm.thumbnail = {};
+        vm.uploading = false;
         vm.saveUser = saveUser;
         vm.deleteUser = deleteUser;
         vm.photoChanged = photoChanged;
@@ -16,21 +18,33 @@
 
         initController();
 
+        $scope.$watch('avatar', function () {vm.photoChanged();});
+
         function initController() {
             // get current user
             UserService.GetCurrent().then(function (user) {
                 vm.user = user;
+                if(vm.user.avatar){
+                    vm.thumbnail = {};
+                    vm.thumbnail.dataUrl = '../uploads/images/'+vm.user.avatar;
+                }
             });
         }
 
         function saveUser() {
-            UserService.Update(vm.user)
-                .then(function () {
-                    FlashService.Success('User updated');
-                })
-                .catch(function (error) {
-                    FlashService.Error(error);
-                });
+            var fd = new FormData();
+            fd.append('file', $scope.avatar);
+            UserService.UploadPhoto(fd).then(function (result) {
+                vm.user.avatar = $scope.avatar.name;
+                UserService.Update(vm.user)
+                    .then(function () {
+                        FlashService.Success('User updated');
+                    })
+                    .catch(function (error) {
+                        FlashService.Error(error);
+                    });
+            });
+
         }
 
         function deleteUser() {
@@ -44,28 +58,28 @@
                 });
         }
 
-        function photoChanged(files) {
-            if (files.length > 0 && files[0].name.match(/\.(png|jpeg|jpg)$/)) {
+        function photoChanged() {
+            console.log($scope.avatar);
+            if ($scope.avatar && $scope.avatar.name.match(/\.(png|jpeg|jpg)$/)) {
                 $scope.uploading = true;
-                var file = files[0];
+                var file = $scope.avatar;
                 var fileReader = new FileReader();
                 fileReader.readAsDataURL(file);
                 fileReader.onload = function(e) {
                     $timeout(function() {
-                        $scope.thumbnail = {};
-                        $scope.thumbnail.dataUrl = e.target.result;
-                        $scope.uploading = false;
-                        $scope.message = false;
+                        vm.thumbnail = {};
+                        vm.thumbnail.dataUrl = e.target.result;
+                        vm.uploading = false;
+                        //$scope.message = false;
                     });
                 };
             } else {
-                $scope.thumbnail = {};
-                $scope.message = false;
+                vm.thumbnail = {};
+                //$scope.message = false;
             }
         }
 
         function uploadFile(){
-            console.log($scope.avatar);
             var fd = new FormData();
             fd.append('file', $scope.avatar);
             UserService.UploadPhoto(fd);
